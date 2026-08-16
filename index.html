@@ -74,8 +74,8 @@
 
     <script>
 
-        // Abhi local FastAPI backend
-        const API_URL = "http://127.0.0.1:8000";
+        // Railway backend URL
+        const API_URL = "todos-production-0389.up.railway.app";
 
 
         // =========================
@@ -212,7 +212,7 @@
 
                 console.error(error);
 
-                alert("Todo add nahi hua.");
+                alert("Failed to add todo.");
 
             }
         }
@@ -241,7 +241,7 @@
                 }
 
 
-                alert("Todo deleted!");
+                alert("Todo deleted successfully!");
 
                 getTodos();
 
@@ -250,7 +250,7 @@
 
                 console.error(error);
 
-                alert("Todo delete nahi hua.");
+                alert("Failed to delete todo.");
 
             }
         }
@@ -309,7 +309,7 @@
                 }
 
 
-                alert("Todo updated!");
+                alert("Todo updated successfully!");
 
                 getTodos();
 
@@ -318,13 +318,13 @@
 
                 console.error(error);
 
-                alert("Todo update nahi hua.");
+                alert("Failed to update todo.");
 
             }
         }
 
 
-        // Page open hote hi todos load honge
+        // Page loads → get todos
         getTodos();
 
     </script>
