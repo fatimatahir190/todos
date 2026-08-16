@@ -1,0 +1,334 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        .todo {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Todo App</h1>
+
+    <h2>Add Todo</h2>
+
+    <input
+        type="text"
+        id="title"
+        placeholder="Enter title"
+    >
+
+    <input
+        type="text"
+        id="description"
+        placeholder="Enter description"
+    >
+
+    <label>
+        <input type="checkbox" id="completed">
+        Completed
+    </label>
+
+    <br>
+
+    <button onclick="addTodo()">Add Todo</button>
+
+    <hr>
+
+    <h2>My Todos</h2>
+
+    <div id="todoList">
+        Loading todos...
+    </div>
+
+
+    <script>
+
+        // Abhi local FastAPI backend
+        const API_URL = "http://127.0.0.1:8000";
+
+
+        // =========================
+        // GET TODOS
+        // =========================
+
+        async function getTodos() {
+
+            try {
+
+                const response = await fetch(`${API_URL}/todos`);
+
+                if (!response.ok) {
+                    throw new Error("Failed to get todos");
+                }
+
+                const todos = await response.json();
+
+                const todoList = document.getElementById("todoList");
+
+                todoList.innerHTML = "";
+
+                if (todos.length === 0) {
+
+                    todoList.innerHTML = "<p>No todos found.</p>";
+
+                    return;
+                }
+
+                todos.forEach(todo => {
+
+                    const todoDiv = document.createElement("div");
+
+                    todoDiv.className = "todo";
+
+                    todoDiv.innerHTML = `
+                        <h3>${todo.title}</h3>
+
+                        <p>${todo.description}</p>
+
+                        <p>
+                            Completed:
+                            ${todo.is_completed ? "Yes" : "No"}
+                        </p>
+
+                        <button onclick="deleteTodo(${todo.id})">
+                            Delete
+                        </button>
+
+                        <button onclick="editTodo(${todo.id})">
+                            Edit
+                        </button>
+                    `;
+
+                    todoList.appendChild(todoDiv);
+
+                });
+
+            } catch (error) {
+
+                console.error(error);
+
+                document.getElementById("todoList").innerHTML =
+                    "<p>Backend connection failed.</p>";
+            }
+        }
+
+
+        // =========================
+        // ADD TODO
+        // =========================
+
+        async function addTodo() {
+
+            const title =
+                document.getElementById("title").value;
+
+            const description =
+                document.getElementById("description").value;
+
+            const is_completed =
+                document.getElementById("completed").checked;
+
+
+            if (!title || !description) {
+
+                alert("Please enter title and description.");
+
+                return;
+            }
+
+
+            try {
+
+                const response = await fetch(
+                    `${API_URL}/todos`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            title: title,
+                            description: description,
+                            is_completed: is_completed
+                        })
+                    }
+                );
+
+
+                if (!response.ok) {
+
+                    throw new Error("Failed to add todo");
+
+                }
+
+
+                alert("Todo added successfully!");
+
+
+                document.getElementById("title").value = "";
+
+                document.getElementById("description").value = "";
+
+                document.getElementById("completed").checked = false;
+
+
+                getTodos();
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                alert("Todo add nahi hua.");
+
+            }
+        }
+
+
+        // =========================
+        // DELETE TODO
+        // =========================
+
+        async function deleteTodo(todoId) {
+
+            try {
+
+                const response = await fetch(
+                    `${API_URL}/todos/${todoId}`,
+                    {
+                        method: "DELETE"
+                    }
+                );
+
+
+                if (!response.ok) {
+
+                    throw new Error("Failed to delete todo");
+
+                }
+
+
+                alert("Todo deleted!");
+
+                getTodos();
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                alert("Todo delete nahi hua.");
+
+            }
+        }
+
+
+        // =========================
+        // EDIT TODO
+        // =========================
+
+        async function editTodo(todoId) {
+
+            const newTitle =
+                prompt("Enter new title:");
+
+            if (newTitle === null) {
+                return;
+            }
+
+
+            const newDescription =
+                prompt("Enter new description:");
+
+            if (newDescription === null) {
+                return;
+            }
+
+
+            const newCompleted =
+                confirm("Is this todo completed?");
+
+
+            try {
+
+                const response = await fetch(
+                    `${API_URL}/todos/${todoId}`,
+                    {
+                        method: "PUT",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            title: newTitle,
+                            description: newDescription,
+                            is_completed: newCompleted
+                        })
+                    }
+                );
+
+
+                if (!response.ok) {
+
+                    throw new Error("Failed to update todo");
+
+                }
+
+
+                alert("Todo updated!");
+
+                getTodos();
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                alert("Todo update nahi hua.");
+
+            }
+        }
+
+
+        // Page open hote hi todos load honge
+        getTodos();
+
+    </script>
+
+</body>
+</html>
+```
